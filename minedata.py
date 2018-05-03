@@ -14,8 +14,10 @@ def get_data(spark: sk.sql.SparkSession, test: bool) -> sk.sql.DataFrame:
 
 def perc_cancelled_flights_per_day(spark: sk.sql.SparkSession, data: sk.sql.DataFrame) -> sk.sql.DataFrame:
     info = data.rdd.map(
-        lambda row: (date(int(row['Year']), int(row['Month']), int(row['DayofMonth'])), int(row['Cancelled'])))
-    fractioncancelled = info.foldByKey((0, 0), lambda l, r: (l[0]+1, l[1]+r))
+        lambda row: (
+            date(int(row['Year']), int(row['Month']), int(row['DayofMonth'])),
+            (1, int(row['Cancelled']))))
+    fractioncancelled = info.reduceByKey(lambda l, r: (l[0]+r[0], l[1]+r[1]))
     return fractioncancelled.mapValues(lambda v: v[1]/v[0]*100.0).sortByKey()
 
 
@@ -24,8 +26,8 @@ def perc_weather_cancellations_per_week(spark: sk.sql.SparkSession, data: sk.sql
     codeperweek = data.rdd.map(
         lambda row: (
             date(int(row['Year']), int(row['Month']), int(row['DayofMonth'])) - timedelta(int(row['DayOfWeek'])-1),
-            row['CancellationCode'].strip()))
-    fractioncancelled = codeperweek.foldByKey((0, 0), lambda l, r: (l[0] + 1, l[1] + (1 if r == 'B' else 0)))
+            (1, 1 if (row['CancellationCode'].strip() == 'B') else 0)))
+    fractioncancelled = codeperweek.reduceByKey(lambda l, r: (l[0]+r[0], l[1]+r[1]))
     return fractioncancelled.mapValues(lambda v: v[1] / v[0] * 100.0).sortByKey()
 
 
