@@ -31,10 +31,24 @@ def perc_weather_cancellations_per_week(spark: sk.sql.SparkSession, data: sk.sql
     return fractioncancelled.mapValues(lambda v: v[1] / v[0] * 100.0).sortByKey()
 
 
+def perc_dep_delay_halved_per_group(spark: sk.sql.SparkSession, data: sk.sql.DataFrame) -> sk.sql.DataFrame:
+    def process_delay(arrdelay: str, depdelay: str):
+        if arrdelay.strip() == 'NA' or depdelay.strip() == 'NA':
+            return 0
+        return 1 if (float(arrdelay) <= float(depdelay) * 0.5) else 0
+
+    delayhalvedpergroup = data.rdd.map(
+        lambda row: (
+            max(1, int(row['Distance']) // 100),
+            (1, process_delay(row['ArrDelay'], row['DepDelay']))))
+    fracdelayhalved = delayhalvedpergroup.reduceByKey(lambda l, r: (l[0]+r[0], l[1]+r[1]))
+    return fracdelayhalved.mapValues(lambda v: v[1] / v[0] * 100.0).sortByKey()
+
+
 if __name__ == '__main__':
     spark = sk.sql.SparkSession.builder.master("local").appName("mw spark bigdata").getOrCreate()
     data = get_data(spark, True)
     print(perc_cancelled_flights_per_day(spark, data).take(10))
     print(perc_weather_cancellations_per_week(spark, data).take(10))
-
+    print(perc_dep_delay_halved_per_group(spark, data).take(10))
 
