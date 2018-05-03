@@ -12,6 +12,10 @@ def get_data(spark: sk.sql.SparkSession, test: bool) -> sk.sql.DataFrame:
     return ft.reduce(lambda x, y: x.union(y), sets)
 
 
+def week_from_row(row: sk.sql.Row) -> date:
+    return date(int(row['Year']), int(row['Month']), int(row['DayofMonth'])) - timedelta(int(row['DayOfWeek'])-1)
+
+
 def perc_cancelled_flights_per_day(spark: sk.sql.SparkSession, data: sk.sql.DataFrame) -> sk.sql.DataFrame:
     info = data.rdd.map(
         lambda row: (
@@ -25,7 +29,7 @@ def perc_weather_cancellations_per_week(spark: sk.sql.SparkSession, data: sk.sql
     onlycancelled = data.select(data['Cancelled'] == 1)
     codeperweek = data.rdd.map(
         lambda row: (
-            date(int(row['Year']), int(row['Month']), int(row['DayofMonth'])) - timedelta(int(row['DayOfWeek'])-1),
+            week_from_row(row),
             (1, 1 if (row['CancellationCode'].strip() == 'B') else 0)))
     fractioncancelled = codeperweek.reduceByKey(lambda l, r: (l[0]+r[0], l[1]+r[1]))
     return fractioncancelled.mapValues(lambda v: v[1] / v[0] * 100.0).sortByKey()
@@ -45,10 +49,26 @@ def perc_dep_delay_halved_per_group(spark: sk.sql.SparkSession, data: sk.sql.Dat
     return fracdelayhalved.mapValues(lambda v: v[1] / v[0] * 100.0).sortByKey()
 
 
+def penalty_per_airport(spark: sk.sql.SparkSession, data: sk.sql.DataFrame) -> sk.sql.DataFrame:
+    def process_score_term(row: sk.sql.Row):
+        week = week_from_row(row)
+        res = []
+        if row['ArrDelay'].strip() != 'NA':
+            res.append(((week, row['Dest'].strip()), 0.5 if float(row['ArrDelay']) >= 15.0 else 0.0))
+        if row['DepDelay'].strip() != 'NA':
+            res.append(((week, row['Origin'].strip()), 1.0 if float(row['DepDelay']) >= 15.0 else 0.0))
+        return res
+
+    termsperweekandport = data.rdd.flatMap(process_score_term)
+    scoreperweekandport = termsperweekandport.reduceByKey(lambda l, r: l+r)
+    return scoreperweekandport.sortBy(lambda kv: kv[0][0])
+
+
 if __name__ == '__main__':
     spark = sk.sql.SparkSession.builder.master("local").appName("mw spark bigdata").getOrCreate()
     data = get_data(spark, True)
     print(perc_cancelled_flights_per_day(spark, data).take(10))
     print(perc_weather_cancellations_per_week(spark, data).take(10))
     print(perc_dep_delay_halved_per_group(spark, data).take(10))
+    print(penalty_per_airport(spark, data).take(10))
 
