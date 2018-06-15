@@ -30,7 +30,7 @@ def perc_weather_cancellations_per_week(spark: sk.sql.SparkSession, data: sk.sql
     codeperweek = data.rdd.map(
         lambda row: (
             week_from_row(row),
-            (1, 1 if (row['CancellationCode'].strip() == 'B') else 0)))
+            (1, 1 if (str(row['CancellationCode']).strip() == 'B') else 0)))
     fractioncancelled = codeperweek.reduceByKey(lambda l, r: (l[0]+r[0], l[1]+r[1]))
     return fractioncancelled.mapValues(lambda v: v[1] / v[0] * 100.0).sortByKey()
 
@@ -54,9 +54,9 @@ def penalty_per_airport(spark: sk.sql.SparkSession, data: sk.sql.DataFrame) -> s
         week = week_from_row(row)
         res = []
         if row['ArrDelay'].strip() != 'NA':
-            res.append(((week, row['Dest'].strip()), 0.5 if float(row['ArrDelay']) >= 15.0 else 0.0))
+            res.append(((week, str(row['Dest']).strip()), 0.5 if float(row['ArrDelay']) >= 15.0 else 0.0))
         if row['DepDelay'].strip() != 'NA':
-            res.append(((week, row['Origin'].strip()), 1.0 if float(row['DepDelay']) >= 15.0 else 0.0))
+            res.append(((week, str(row['Origin']).strip()), 1.0 if float(row['DepDelay']) >= 15.0 else 0.0))
         return res
 
     termsperweekandport = data.rdd.flatMap(process_score_term)
