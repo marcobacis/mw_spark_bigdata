@@ -36,15 +36,17 @@ def perc_weather_cancellations_per_week(spark: sk.sql.SparkSession, data: sk.sql
 
 
 def perc_dep_delay_halved_per_group(spark: sk.sql.SparkSession, data: sk.sql.DataFrame) -> sk.RDD:
-    def process_delay(arrdelay: str, depdelay: str):
-        if arrdelay.strip() == 'NA' or depdelay.strip() == 'NA':
-            return 0
-        return 1 if (float(arrdelay) <= float(depdelay) * 0.5) else 0
+    def process_row(row):
+        try:
+            distgroup = max(1, int(row['Distance']) // 100)
+            arrdelay = float(row['ArrDelay'].strip())
+            depdelay = float(row['DepDelay'].strip())
+        except:
+            return []
+        delayfrac = (1, 1 if (arrdelay <= (depdelay * 0.5)) else 0)
+        return [(distgroup, delayfrac)]
 
-    delayhalvedpergroup = data.rdd.map(
-        lambda row: (
-            max(1, int(row['Distance']) // 100),
-            (1, process_delay(row['ArrDelay'], row['DepDelay']))))
+    delayhalvedpergroup = data.rdd.flatMap(process_row)
     fracdelayhalved = delayhalvedpergroup.reduceByKey(lambda l, r: (l[0]+r[0], l[1]+r[1]))
     return fracdelayhalved.mapValues(lambda v: v[1] / v[0] * 100.0).sortByKey()
 

@@ -1,5 +1,6 @@
 Year,Month,DayofMonth,DayOfWeek,DepTime,CRSDepTime,ArrTime,CRSArrTime,UniqueCarrier,FlightNum,TailNum,ActualElapsedTime,CRSElapsedTime,AirTime,ArrDelay,DepDelay,Origin,Dest,Distance,TaxiIn,TaxiOut,Cancelled,CancellationCode,Diverted,CarrierDelay,WeatherDelay,NASDelay,SecurityDelay,LateAircraftDelay
 1994,1,    1,         6,        617,    615,       749,    747,       US,           227,      NA,     92,               92,            NA,     2,       2,       MCO,   CLT, 468,     NA,    NA,     1,        B,               0,       NA,NA,NA,NA,NA
+1994,1,    1,         6,        617,    615,       749,    747,       US,           227,      NA,     92,               92,            NA,     2,       2,       MCO,   CLT, NA,     NA,    NA,     1,        B,               0,       NA,NA,NA,NA,NA
 1994,1,7,5,858,900,954,1003,US,227,NA,56,63,NA,-9,-2,CLT,ORF,290,NA,NA,0,NA,0,NA,NA,NA,NA,NA
 1994,1,8,6,859,900,952,1003,US,227,NA,53,63,NA,-11,-1,CLT,ORF,290,NA,NA,0,NA,0,NA,NA,NA,NA,NA
 1994,1,10,1,935,900,1023,1003,US,227,NA,48,63,NA,20,35,CLT,ORF,290,NA,NA,0,NA,0,NA,NA,NA,NA,NA
