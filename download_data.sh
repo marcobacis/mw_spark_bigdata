@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 
-mkdir data
+mkdir -p data
 cd data
 
 for i in `seq 1994 2008`
