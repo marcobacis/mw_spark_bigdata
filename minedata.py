@@ -38,7 +38,7 @@ def perc_weather_cancellations_per_week(spark: sk.sql.SparkSession, data: sk.sql
 def perc_dep_delay_halved_per_group(spark: sk.sql.SparkSession, data: sk.sql.DataFrame) -> sk.RDD:
     def process_row(row):
         try:
-            distgroup = max(1, int(row['Distance']) // 100)
+            distgroup = max(1, int(row['Distance']) // 200)
             arrdelay = float(row['ArrDelay'].strip())
             depdelay = float(row['DepDelay'].strip())
         except:
