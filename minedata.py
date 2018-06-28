@@ -108,6 +108,19 @@ def penalty_per_airport(spark: sk.sql.SparkSession, data: sk.sql.DataFrame) -> s
     return scoreperweekandport.sortBy(lambda kv: kv[0][0])
 
 
+def flights_per_path_monthly(spark: sk.sql.SparkSession, data: sk.sql.DataFrame) -> sk.RDD:
+
+    def process_row(row):
+        return ((path_key(row), row['Year'], row['Month']), 1)
+
+    def unpack(row):
+        return (row[0][0], row[0][1], row[0][2], row[1])
+
+    flighttopath = data.rdd.map(process_row)
+    res = flighttopath.reduceByKey(lambda acc, n : acc+n)
+    return res
+
+
 def to_csv(df: sk.RDD, path: str):
     rows = df.map(lambda p: str(p[0]) + ',' + str(p[1]))
     rows.saveAsTextFile(path)
@@ -119,24 +132,23 @@ if __name__ == '__main__':
     spark = sk.sql.SparkSession.builder.master("local").appName("mw spark bigdata").getOrCreate()
     data = get_data(spark, True)
 
-    pddhpg = perc_dep_delay_halved_per_group(spark, data)
-    print(pddhpg.take(10))
-    exit(0)
-
     cfpd = perc_cancelled_flights_per_day(spark, data)
     pwcpw = perc_weather_cancellations_per_week(spark, data)
-
+    pddhpg = perc_dep_delay_halved_per_group(spark, data)
     ppa = penalty_per_airport(spark, data)
+    fppm = flights_per_path_monthly(spark,data)
 
     print(cfpd.take(10))
     print(pwcpw.take(10))
-
+    print(pddhpg.take(10))
     print(ppa.take(10))
+    print(fppm.take(10))
 
     if len(sys.argv) > 1:
         to_csv(cfpd, sys.argv[1] + '/cfpd.csv')
         to_csv(pwcpw, sys.argv[1] + '/pwcpw.csv')
         to_csv(pddhpg, sys.argv[1] + '/pddhpg.csv')
         to_csv(ppa, sys.argv[1] + '/ppa.csv')
+        to_csv(fppm, sys.argv[1] + 'fppm.csv')
 
 
