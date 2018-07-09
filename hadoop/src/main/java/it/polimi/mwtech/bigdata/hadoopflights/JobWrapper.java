@@ -77,6 +77,7 @@ public abstract class JobWrapper
   void takeInputFromJob(JobWrapper srcJob) throws IOException
   {
     prevJobs.add(srcJob);
+    myJob.setInputFormatClass(SequenceFileInputFormat.class);
     setInputPaths(srcJob.getOutputPath());
   }
 
