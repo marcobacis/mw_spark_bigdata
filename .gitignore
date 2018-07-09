@@ -102,3 +102,6 @@ ENV/
 data
 .idea
 holoviews-examples
+hadoop/.classpath
+hadoop/.project
+hadoop/.settings
