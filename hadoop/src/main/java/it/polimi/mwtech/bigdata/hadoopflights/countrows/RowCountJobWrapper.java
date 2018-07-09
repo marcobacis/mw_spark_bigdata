@@ -27,8 +27,6 @@ public class RowCountJobWrapper extends JobWrapper
     job.setCombinerClass(RowCountReducer.class);
     job.setOutputKeyClass(IntWritable.class);
     job.setOutputValueClass(IntWritable.class);
-    job.setOutputKeyClass(IntWritable.class);
-    job.setOutputValueClass(IntWritable.class);
   }
 
 }
