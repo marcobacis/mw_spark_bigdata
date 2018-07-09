@@ -57,9 +57,20 @@ abstract public class FileParserBase<KEYOUT, VALUEOUT> extends Mapper<Object, Te
       row.put(keys[i], rawvals[i].trim());
     }
     
+    String testyear = row.get(RowKey.YEAR);
+    try {
+      Integer.parseInt(testyear);
+    } catch (NumberFormatException e) {
+      return;
+    }
+    
     KEYOUT keyout = selectKey(row);
-    VALUEOUT valout = selectValue(row);
-    context.write(keyout, valout);
+    if (keyout != null) {
+      VALUEOUT valout = selectValue(row);
+      if (valout != null) {
+        context.write(keyout, valout);
+      }
+    }
   }
 
 
