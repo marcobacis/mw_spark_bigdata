@@ -10,7 +10,7 @@ import org.apache.hadoop.mapreduce.Reducer;
 
 import it.polimi.mwtech.bigdata.hadoopflights.FileParserBase;
 import it.polimi.mwtech.bigdata.hadoopflights.JobWrapper;
-import it.polimi.mwtech.bigdata.hadoopflights.common.DateUtils;
+import it.polimi.mwtech.bigdata.hadoopflights.common.Utils;
 
 public class CancelledWeatherJobWrapper extends JobWrapper {
 	  
@@ -29,7 +29,7 @@ public class CancelledWeatherJobWrapper extends JobWrapper {
 	      String y = row.get(FileParserBase.RowKey.YEAR);
 	      String m = row.get(FileParserBase.RowKey.MONTH);
 	      String d = row.get(FileParserBase.RowKey.DAY_OF_MONTH);
-	      return DateUtils.toWeek(y, m, d);
+	      return Utils.toWeek(y, m, d);
 	    }
 
 

@@ -4,9 +4,9 @@ import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import org.apache.hadoop.io.Text;
 
-public class DateUtils {
+public class Utils {
 
-	static SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd");
+	static SimpleDateFormat dateformat = new SimpleDateFormat("yyyy-MM-dd");
 	
 	/**
 	 * From given date to monday of the same week
@@ -29,6 +29,6 @@ public class DateUtils {
 	    
 	    cal.add(Calendar.DATE, -distance);
 	    
-	    return new Text(format.format(cal.getTime()));
+	    return new Text(dateformat.format(cal.getTime()));
 	}
 }
