@@ -29,7 +29,7 @@ public class FracToPercentJobWrapper extends JobWrapper
       String[] nd = value.toString().split(",");
       float n = Integer.parseInt(nd[0]);
       float d = Integer.parseInt(nd[1]);
-      context.write(key, new FloatWritable(n / d));
+      context.write(key, new FloatWritable((n / d) * 100));
     }
   }
 

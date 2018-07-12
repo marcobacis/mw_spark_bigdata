@@ -1,14 +1,17 @@
 
 package it.polimi.mwtech.bigdata.hadoopflights;
 
-import java.io.IOException;
+import java.util.Calendar;
+import java.util.Date;
 
 import org.apache.hadoop.conf.*;
 import org.apache.hadoop.fs.*;
 
+import it.polimi.mwtech.bigdata.hadoopflights.common.DateUtils;
 import it.polimi.mwtech.bigdata.hadoopflights.common.FracToPercentJobWrapper;
 import it.polimi.mwtech.bigdata.hadoopflights.countrows.*;
 import it.polimi.mwtech.bigdata.hadoopflights.perccancperday.*;
+import it.polimi.mwtech.bigdata.hadoopflights.percweathercanc.*;
 
 
 public class HadoopFlights
@@ -35,12 +38,24 @@ public class HadoopFlights
     ftpjw.waitForCompletion();
   }
 
+  static void computePercCancelledPerWeekDueToWeather(Configuration conf, String in, String out) throws Exception {
+	  CancelledWeatherJobWrapper pwcpw = new CancelledWeatherJobWrapper(conf);
+	  FracToPercentJobWrapper ftpjw = new FracToPercentJobWrapper(conf);
+	  pwcpw.feedOutputToJob(ftpjw);
+	  ftpjw.setOutputPath(new Path(out));
+	  ftpjw.setOutputPath(new Path(out));
+	  pwcpw.setInputPaths(new Path(in));
+	  ftpjw.submitJobAndChain();
+	  ftpjw.waitForCompletion();
+  }
 
   public static void main(String[] args) throws Exception
   {
     Configuration conf = new Configuration();
     // computeRowCount(conf, args[0], args[1] + "_rc");
-    computePercCancelledFlightsPerDay(conf, args[0], args[1] + "_pcfpd");
+    computePercCancelledFlightsPerDay(conf, args[0], args[1] + "pcfpd.csv");
+    computePercCancelledPerWeekDueToWeather(conf, args[0], args[1] + "pwcpw.csv");
+
   }
 
 }

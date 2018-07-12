@@ -1,4 +1,3 @@
-
 package it.polimi.mwtech.bigdata.hadoopflights.perccancperday;
 
 import java.io.IOException;
