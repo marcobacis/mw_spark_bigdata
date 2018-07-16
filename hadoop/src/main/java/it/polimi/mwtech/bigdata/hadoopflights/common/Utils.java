@@ -31,4 +31,16 @@ public class Utils {
 	    
 	    return new Text(dateformat.format(cal.getTime()));
 	}
+	
+	public static String pathKey(String dep, String dest) {
+		
+		dep = dep.trim();
+		dest = dest.trim();
+		
+		if(dep.compareTo(dest) > 0) {
+			return dest + "-" + dep;
+		}
+		
+		return dep + "-" + dest;
+	}
 }

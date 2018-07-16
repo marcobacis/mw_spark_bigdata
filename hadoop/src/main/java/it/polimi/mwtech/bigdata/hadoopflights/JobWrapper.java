@@ -3,6 +3,7 @@ package it.polimi.mwtech.bigdata.hadoopflights;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.UUID;
 
 import org.apache.hadoop.conf.*;
@@ -17,7 +18,7 @@ public abstract class JobWrapper
   Job myJob;
   ArrayList<JobWrapper> prevJobs;
   Thread execThread;
-  private Path[] inputPaths;
+  private ArrayList<Path> inputPaths = new ArrayList<Path>();
   private Path outputPath;
 
 
@@ -36,25 +37,26 @@ public abstract class JobWrapper
   }
 
 
-  public void setInputPaths(Path... p) throws IOException
+  public void addInputPaths(Path... p) throws IOException
   {
-    FileInputFormat.setInputPaths(myJob, p);
-    inputPaths = p;
+    inputPaths.addAll(Arrays.asList(p));
   }
 
 
-  public Path[] getInputPath()
+  public String[] getInputPaths()
   {
-    return inputPaths;
+	String[] paths = new String[inputPaths.size()];
+	for(int i = 0; i < inputPaths.size(); i++) {
+		paths[i] = inputPaths.get(i).toString();
+	}
+    return paths;
   }
-
 
   public void setOutputPath(Path p)
   {
     FileOutputFormat.setOutputPath(myJob, p);
     outputPath = p;
   }
-
 
   public Path getOutputPath()
   {
@@ -78,7 +80,7 @@ public abstract class JobWrapper
   {
     prevJobs.add(srcJob);
     myJob.setInputFormatClass(SequenceFileInputFormat.class);
-    setInputPaths(srcJob.getOutputPath());
+    addInputPaths(srcJob.getOutputPath());
   }
 
 
@@ -92,6 +94,15 @@ public abstract class JobWrapper
         prev.waitForCompletion();
       }
 
+      FileInputFormat.addInputPaths(myJob, String.join(",", getInputPaths()));
+      
+      Path[] paths = FileInputFormat.getInputPaths(myJob);
+      
+      System.out.println(paths.length + " paths for job " + myJob.getJobName());
+      for(Path p : paths) {
+    	  System.out.println(p.toString());
+      }
+      
       myJob.submit();
       myJob.waitForCompletion(true);
     } catch (Exception e) {

@@ -7,18 +7,17 @@ import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.io.Text;
 import org.apache.hadoop.mapreduce.Job;
 import org.apache.hadoop.mapreduce.Reducer;
-import org.apache.hadoop.mapreduce.Reducer.Context;
 
 import it.polimi.mwtech.bigdata.hadoopflights.FileParserBase;
 import it.polimi.mwtech.bigdata.hadoopflights.JobWrapper;
+import it.polimi.mwtech.bigdata.hadoopflights.common.Utils;
 
-public class FracDistanceGroupHalvedWrapper extends JobWrapper{
+public class HalvedDelayJobWrapper extends JobWrapper{
 
-	public FracDistanceGroupHalvedWrapper(Configuration conf) throws IOException
+	public HalvedDelayJobWrapper(Configuration conf) throws IOException
 	  {
 	    super(conf);
 	  }
-
 
 	public static class HalvedDelayMapper extends FileParserBase<Text, Text>
 	{
@@ -26,20 +25,9 @@ public class FracDistanceGroupHalvedWrapper extends JobWrapper{
 	    @Override
 	    public Text selectKey(Map<FileParserBase.RowKey, String> row)
 	    {
-	      
-	    	int distance;
-	    	
-	    	try {
-	    		distance = Integer.parseInt(row.get(FileParserBase.RowKey.DISTANCE_MILES));
-	    		
-	    		Integer group = distance / 200;
-		    	
-		    	return new Text(group.toString());
-		    	
-	    	} catch (Exception e) {
-	    		return null;
-	    	}
-	    	
+	    	String origin = row.get(FileParserBase.RowKey.ORIGIN_IATA_ID);
+	    	String dest = row.get(FileParserBase.RowKey.DEST_IATA_ID);
+	    	return new Text(Utils.pathKey(origin, dest));
 	    }
 
 
@@ -60,10 +48,10 @@ public class FracDistanceGroupHalvedWrapper extends JobWrapper{
 	    	
 	    	Integer halved = 0;
 	    	
-	    	if(arrdelay <= depdelay * 0.5)
+	    	if(arrdelay <= depdelay /2)
 	    		halved = 1;
 	    	
-	    	return new Text(new String(halved + "," + valid));
+	    	return new Text(new String("delay," + halved + "," + valid));
 	    }
 
 	}
@@ -78,10 +66,10 @@ public class FracDistanceGroupHalvedWrapper extends JobWrapper{
 	      for (Text i : v) {
 	        String vi = i.toString();
 	        String[] vis = vi.split(",");
-	        n += Integer.parseInt(vis[0]);
-	        d += Integer.parseInt(vis[1]);
+	        n += Integer.parseInt(vis[1]);
+	        d += Integer.parseInt(vis[2]);
 	      }
-	      ctxt.write(k, new Text(Integer.toString(n) + "," + Integer.toString(d)));
+	      ctxt.write(k, new Text("delay," + Integer.toString(n) + "," + Integer.toString(d)));
 	    }
 	  }
 
