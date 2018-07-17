@@ -26,10 +26,7 @@ public class CancelledWeatherJobWrapper extends JobWrapper {
 	    @Override
 	    public Text selectKey(Map<FileParserBase.RowKey, String> row)
 	    {
-	      String y = row.get(FileParserBase.RowKey.YEAR);
-	      String m = row.get(FileParserBase.RowKey.MONTH);
-	      String d = row.get(FileParserBase.RowKey.DAY_OF_MONTH);
-	      return Utils.toWeek(y, m, d);
+	      return Utils.toWeek(row);
 	    }
 
 

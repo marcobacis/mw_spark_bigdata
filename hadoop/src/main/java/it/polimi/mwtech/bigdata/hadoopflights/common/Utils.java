@@ -2,7 +2,12 @@ package it.polimi.mwtech.bigdata.hadoopflights.common;
 
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
+import java.util.Map;
+
 import org.apache.hadoop.io.Text;
+
+import it.polimi.mwtech.bigdata.hadoopflights.FileParserBase;
+import it.polimi.mwtech.bigdata.hadoopflights.FileParserBase.RowKey;
 
 public class Utils {
 
@@ -13,24 +18,32 @@ public class Utils {
 	 * @param year
 	 * @param month
 	 * @param day
+	 * @param weekDay
 	 * @return the date string of the first day of the week for the given date
 	 */
-	public static Text toWeek(String year, String month, String day) {
+	public static Text toWeek(String year, String month, String day, String weekDay) {
 			        
 	    Calendar cal = Calendar.getInstance();
 	    
-	    cal.setFirstDayOfWeek(Calendar.MONDAY);
-	    
 	    cal.set(Integer.parseInt(year), Integer.parseInt(month)-1, Integer.parseInt(day));
 	    
-	    int distance = cal.get(Calendar.DAY_OF_WEEK) - cal.getFirstDayOfWeek();
-	    if(distance < 0)
-	    	distance = distance + 7;
+	    int distance = Integer.parseInt(weekDay) - 1;
 	    
 	    cal.add(Calendar.DATE, -distance);
 	    
 	    return new Text(dateformat.format(cal.getTime()));
 	}
+	
+	public static Text toWeek(Map<RowKey, String> row) {
+        
+		String y = row.get(FileParserBase.RowKey.YEAR);
+		String m = row.get(FileParserBase.RowKey.MONTH);
+		String d = row.get(FileParserBase.RowKey.DAY_OF_MONTH);
+		String wd = row.get(FileParserBase.RowKey.DAY_OF_WEEK);
+		
+	    return Utils.toWeek(y, m, d, wd);
+	}
+	
 	
 	public static String pathKey(String dep, String dest) {
 		

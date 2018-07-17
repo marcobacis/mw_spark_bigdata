@@ -56,21 +56,18 @@ public class WeeklyPenaltyJobWrapper extends JobWrapper {
 			String arrdelay = row.get(RowKey.ARR_DELAY_MINS).trim();
 			String depdelay = row.get(RowKey.DEP_DELAY_MINS).trim();
 			
-			String y = row.get(FileParserBase.RowKey.YEAR);
-			String m = row.get(FileParserBase.RowKey.MONTH);
-			String d = row.get(FileParserBase.RowKey.DAY_OF_MONTH);
-			String week = Utils.toWeek(y, m, d).toString();
+			String week = Utils.toWeek(row).toString();
 			
-			if(!arrdelay.equals("NA")) {
-				Text newKey = new Text(week + "," + dest);
-				Text penalty = new Text(Integer.parseInt(arrdelay) > 15 ? "0.5" : "0.0");
-				context.write(newKey, penalty);
+			if(!arrdelay.equals("NA") && Integer.parseInt(arrdelay) >= 15) {
+				context.write(new Text(week + "," + dest), new Text("0.5"));
+			} else {
+				context.write(new Text(week + "," + dest), new Text("0.0"));
 			}
 			
-			if(!depdelay.equals("NA")) {
-				Text newKey = new Text(week + "," + origin);
-				Text penalty = new Text(Integer.parseInt(depdelay) > 15 ? "1.0" : "0.0");
-				context.write(newKey, penalty);
+			if(!depdelay.equals("NA") && Integer.parseInt(depdelay) >= 15) {
+				context.write(new Text(week + "," + origin), new Text("1.0"));
+			} else {
+				context.write(new Text(week + "," + origin), new Text("0.0"));
 			}
 			
 		}
