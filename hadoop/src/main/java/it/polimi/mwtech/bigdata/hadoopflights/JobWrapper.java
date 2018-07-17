@@ -96,13 +96,6 @@ public abstract class JobWrapper
 
       FileInputFormat.addInputPaths(myJob, String.join(",", getInputPaths()));
       
-      Path[] paths = FileInputFormat.getInputPaths(myJob);
-      
-      System.out.println(paths.length + " paths for job " + myJob.getJobName());
-      for(Path p : paths) {
-    	  System.out.println(p.toString());
-      }
-      
       myJob.submit();
       myJob.waitForCompletion(true);
     } catch (Exception e) {

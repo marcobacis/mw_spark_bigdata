@@ -25,33 +25,23 @@ public class HalvedDelayJobWrapper extends JobWrapper{
 	    @Override
 	    public Text selectKey(Map<FileParserBase.RowKey, String> row)
 	    {
-	    	String origin = row.get(FileParserBase.RowKey.ORIGIN_IATA_ID);
-	    	String dest = row.get(FileParserBase.RowKey.DEST_IATA_ID);
-	    	return new Text(Utils.pathKey(origin, dest));
+	    	return new Text(Utils.pathKey(row));
 	    }
 
 
 	    @Override
 	    public Text selectValue(Map<FileParserBase.RowKey, String> row)
-	    {
-	    	Integer valid = 1;
-	    	
-	    	int depdelay = 0;
-	    	int arrdelay = 0;
-	    	
+	    {	
 	    	try {
-		    	depdelay = Integer.parseInt(row.get(FileParserBase.RowKey.DEP_DELAY_MINS));
-		    	arrdelay = Integer.parseInt(row.get(FileParserBase.RowKey.ARR_DELAY_MINS));
+		    	int depdelay = Integer.parseInt(row.get(FileParserBase.RowKey.DEP_DELAY_MINS));
+		    	int arrdelay = Integer.parseInt(row.get(FileParserBase.RowKey.ARR_DELAY_MINS));
+		    	
+		    	String halved = arrdelay <= depdelay /2 ? "1" : "0";
+		    	
+		    	return new Text("delay," + halved + ",1");
 	    	} catch (Exception e) {
-	    		valid = 0;
+	    		return new Text("delay,0,0");
 	    	}
-	    	
-	    	Integer halved = 0;
-	    	
-	    	if(arrdelay <= depdelay /2)
-	    		halved = 1;
-	    	
-	    	return new Text(new String("delay," + halved + "," + valid));
 	    }
 
 	}

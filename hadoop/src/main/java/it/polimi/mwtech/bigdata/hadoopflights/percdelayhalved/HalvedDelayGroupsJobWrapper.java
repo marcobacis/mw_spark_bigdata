@@ -43,7 +43,7 @@ public class HalvedDelayGroupsJobWrapper extends JobWrapper {
 				n += Integer.parseInt(vis[0]);
 				d += Integer.parseInt(vis[1]);
 			}
-			context.write(key, new Text(Integer.toString(n) + "," + Integer.toString(d)));
+			context.write(key, new Text(n + "," + d));
 		}
 	}
 	

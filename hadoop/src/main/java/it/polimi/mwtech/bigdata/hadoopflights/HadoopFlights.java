@@ -6,6 +6,7 @@ import org.apache.hadoop.fs.*;
 
 import it.polimi.mwtech.bigdata.hadoopflights.common.FracToPercentJobWrapper;
 import it.polimi.mwtech.bigdata.hadoopflights.countrows.*;
+import it.polimi.mwtech.bigdata.hadoopflights.flightperpath.FlightsPerPathMonthly;
 import it.polimi.mwtech.bigdata.hadoopflights.perccancperday.*;
 import it.polimi.mwtech.bigdata.hadoopflights.percdelayhalved.DistFlightsJoinWrapper;
 import it.polimi.mwtech.bigdata.hadoopflights.percdelayhalved.HalvedDelayGroupsJobWrapper;
@@ -39,7 +40,7 @@ public class HadoopFlights
 		ftpjw.waitForCompletion();
 	}
 
-	static void computePercCancelledPerWeekDueToWeather(Configuration conf, String in, String out) throws Exception
+	static void computePercWeatherCancellationPerWeek(Configuration conf, String in, String out) throws Exception
 	{
 		CancelledWeatherJobWrapper pwcpw = new CancelledWeatherJobWrapper(conf);
 		FracToPercentJobWrapper ftpjw = new FracToPercentJobWrapper(conf);
@@ -61,7 +62,7 @@ public class HadoopFlights
 	 *             |
 	 *       FracToPercent
 	 */
-	static void computeUniqueDistances(Configuration conf, String in, String out) throws Exception
+	static void computePercDepDelayHalvedPerGroup(Configuration conf, String in, String out) throws Exception
 	{
 		UniqueDistJobWrapper unique = new UniqueDistJobWrapper(conf);
 		HalvedDelayJobWrapper halved = new HalvedDelayJobWrapper(conf);
@@ -103,6 +104,21 @@ public class HadoopFlights
 		penalty.submitJobAndChain();
 		penalty.waitForCompletion();
 	}
+	
+	/**
+	 * Additional query. Counts the number of flights on every
+	 * pair of airports with at least one flight, for each month.
+	 */
+	static void computeFlightsPerPathMonthly(Configuration conf, String in, String out) throws Exception
+	{
+		FlightsPerPathMonthly fppm = new FlightsPerPathMonthly(conf);
+		
+		fppm.addInputPaths(new Path(in));
+		fppm.setOutputPath(new Path(out));
+		
+		fppm.submitJobAndChain();
+		fppm.waitForCompletion();
+	}
 
 
 	public static void main(String[] args) throws Exception
@@ -110,9 +126,10 @@ public class HadoopFlights
 		Configuration conf = new Configuration();
 		// computeRowCount(conf, args[0], args[1] + "_rc");
 		computePercCancelledFlightsPerDay(conf, args[0], args[1] + "pcfpd.csv");
-		computePercCancelledPerWeekDueToWeather(conf, args[0], args[1] + "pwcpw.csv");
-		computeUniqueDistances(conf, args[0], args[1] + "joined.csv");
+		computePercWeatherCancellationPerWeek(conf, args[0], args[1] + "pwcpw.csv");
+		computePercDepDelayHalvedPerGroup(conf, args[0], args[1] + "pddhpg.csv");
 		computeWeeklyPenalty(conf, args[0], args[1] + "ppa.csv");
+		computeFlightsPerPathMonthly(conf, args[0], args[1] + "fppm.csv");
 	}
 
 }

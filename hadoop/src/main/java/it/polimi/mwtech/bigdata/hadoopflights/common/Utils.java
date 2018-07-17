@@ -45,15 +45,18 @@ public class Utils {
 	}
 	
 	
-	public static String pathKey(String dep, String dest) {
-		
-		dep = dep.trim();
-		dest = dest.trim();
+	public static String pathKey(Map<RowKey, String> row) {
+		return pathKey(row,"-");
+	}
+	
+	public static String pathKey(Map<RowKey, String> row, String separator) {
+		String dep = row.get(FileParserBase.RowKey.ORIGIN_IATA_ID).trim();
+		String dest = row.get(FileParserBase.RowKey.DEST_IATA_ID).trim();
 		
 		if(dep.compareTo(dest) > 0) {
-			return dest + "-" + dep;
+			return dest + separator + dep;
 		}
 		
-		return dep + "-" + dest;
+		return dep + separator + dest;
 	}
 }
