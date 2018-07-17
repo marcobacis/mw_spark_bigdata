@@ -1,8 +1,6 @@
 package it.polimi.mwtech.bigdata.hadoopflights.percdelayhalved;
 
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Arrays;
 
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.io.*;

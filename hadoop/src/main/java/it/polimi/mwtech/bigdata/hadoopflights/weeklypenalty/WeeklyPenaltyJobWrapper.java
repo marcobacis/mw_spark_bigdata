@@ -2,8 +2,6 @@ package it.polimi.mwtech.bigdata.hadoopflights.weeklypenalty;
 
 import java.io.IOException;
 import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
 
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.io.LongWritable;
@@ -12,7 +10,6 @@ import org.apache.hadoop.mapreduce.Job;
 import org.apache.hadoop.mapreduce.Mapper;
 import org.apache.hadoop.mapreduce.Reducer;
 
-import it.polimi.mwtech.bigdata.hadoopflights.FileParserBase;
 import it.polimi.mwtech.bigdata.hadoopflights.JobWrapper;
 import it.polimi.mwtech.bigdata.hadoopflights.FileParserBase.RowKey;
 import it.polimi.mwtech.bigdata.hadoopflights.common.Utils;

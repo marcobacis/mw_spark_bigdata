@@ -36,7 +36,7 @@ public class HalvedDelayJobWrapper extends JobWrapper{
 		    	int depdelay = Integer.parseInt(row.get(FileParserBase.RowKey.DEP_DELAY_MINS));
 		    	int arrdelay = Integer.parseInt(row.get(FileParserBase.RowKey.ARR_DELAY_MINS));
 		    	
-		    	String halved = arrdelay <= depdelay /2 ? "1" : "0";
+		    	String halved = (float)arrdelay <= (float)(depdelay * 0.5) ? "1" : "0";
 		    	
 		    	return new Text("delay," + halved + ",1");
 	    	} catch (Exception e) {

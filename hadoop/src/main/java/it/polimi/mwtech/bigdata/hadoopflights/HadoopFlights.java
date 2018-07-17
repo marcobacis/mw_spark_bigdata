@@ -28,7 +28,12 @@ public class HadoopFlights
 		rcjw.waitForCompletion();
 	}
 
-
+	/**
+	 * First query
+	 * "The percentage of canceled flights per day,
+	 * throughout the entire data set."
+	 * 
+	 */
 	static void computePercCancelledFlightsPerDay(Configuration conf, String in, String out) throws Exception
 	{
 		CancelledFlightsFractionJobWrapper cffjw = new CancelledFlightsFractionJobWrapper(conf);
@@ -40,6 +45,13 @@ public class HadoopFlights
 		ftpjw.waitForCompletion();
 	}
 
+	
+	/**
+	 * Second query.
+	 * "Weekly percentages of delays that are due to weather,
+	 * throughout the entire data set."
+	 * 
+	 */
 	static void computePercWeatherCancellationPerWeek(Configuration conf, String in, String out) throws Exception
 	{
 		CancelledWeatherJobWrapper pwcpw = new CancelledWeatherJobWrapper(conf);
@@ -53,6 +65,14 @@ public class HadoopFlights
 
 	/**
 	 * Third query
+	 * "The percentage of flights belonging to a given 'distance group'
+	 * that were able to halve their departure delays by the time they
+	 * arrived at their destinations. Distance groups assort flights
+	 * by their total distance in miles (at 200 miles steps)."
+	 * 
+	 * The UniqueDist job results are joined with the other job in order
+	 * to fix some missing distances (actually, we directly deal with the
+	 * distance group instead of the distance in miles).
 	 * 
 	 *  UniqueDist     HalvedDelay
 	 *        \          /
@@ -77,7 +97,6 @@ public class HadoopFlights
 
 		halved.addInputPaths(new Path(in));
 		unique.addInputPaths(new Path(in));
-
 		ftpjw.setOutputPath(new Path(out));
 
 		ftpjw.submitJobAndChain();
@@ -85,13 +104,11 @@ public class HadoopFlights
 	}
 
 	/**
-	 * Fourth query. Weekly penalty score for each airport
-	 *  a weekly "penalty" score for each airport that depends on both the
+	 * Fourth query.
+	 *  "A weekly 'penalty' score for each airport that depends on both the
 	 *  its incoming and outgoing flights.
 	 *  The score adds 0.5 for each incoming flight that is more than 15 minutes late,
-	 *  and 1 for each outgoing flight that is more than 15 minutes late.
-	 *  
-	 *  There is only one job
+	 *  and 1 for each outgoing flight that is more than 15 minutes late."
 	 *  
 	 */
 	static void computeWeeklyPenalty(Configuration conf, String in, String out) throws Exception
@@ -121,15 +138,19 @@ public class HadoopFlights
 	}
 
 
+	/**
+	 * args[1] => Input file path
+	 * args[2] => Output files directory path
+	 */
 	public static void main(String[] args) throws Exception
 	{
 		Configuration conf = new Configuration();
-		// computeRowCount(conf, args[0], args[1] + "_rc");
-		computePercCancelledFlightsPerDay(conf, args[0], args[1] + "pcfpd.csv");
-		computePercWeatherCancellationPerWeek(conf, args[0], args[1] + "pwcpw.csv");
-		computePercDepDelayHalvedPerGroup(conf, args[0], args[1] + "pddhpg.csv");
-		computeWeeklyPenalty(conf, args[0], args[1] + "ppa.csv");
-		computeFlightsPerPathMonthly(conf, args[0], args[1] + "fppm.csv");
+		//computeRowCount(conf, args[0], args[1] + "/rowcount.csv");
+		computePercCancelledFlightsPerDay(conf, args[0], args[1] + "/pcfpd.csv");
+		computePercWeatherCancellationPerWeek(conf, args[0], args[1] + "/pwcpw.csv");
+		computePercDepDelayHalvedPerGroup(conf, args[0], args[1] + "/pddhpg.csv");
+		computeWeeklyPenalty(conf, args[0], args[1] + "/ppa.csv");
+		computeFlightsPerPathMonthly(conf, args[0], args[1] + "/fppm.csv");
 	}
 
 }

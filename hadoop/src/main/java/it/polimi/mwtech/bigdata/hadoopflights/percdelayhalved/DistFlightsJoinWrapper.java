@@ -4,7 +4,6 @@ import java.io.IOException;
 
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.io.*;
-import org.apache.hadoop.mapred.lib.IdentityMapper;
 import org.apache.hadoop.mapreduce.*;
 
 import it.polimi.mwtech.bigdata.hadoopflights.JobWrapper;
@@ -29,7 +28,7 @@ public class DistFlightsJoinWrapper extends JobWrapper {
 			for(Text val : values) {
 				String[] parts = val.toString().split(",");
 				
-				if(parts[0].equals("distance")) { //from unique path-group job
+				if(parts[0].equals("distance") && !parts[0].equals("NA")) { //from unique path-group job
 					group = parts[1];
 				} else if(parts[0].equals("delay")) { //from delay halved job
 					halved += Integer.parseInt(parts[1]);

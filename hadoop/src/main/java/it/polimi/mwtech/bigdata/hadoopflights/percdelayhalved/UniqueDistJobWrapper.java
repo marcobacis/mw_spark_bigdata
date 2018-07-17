@@ -32,12 +32,10 @@ public class UniqueDistJobWrapper extends JobWrapper {
 	    {
 	      	    	
 	    	try {
-	    		int distance = Integer.parseInt(row.get(FileParserBase.RowKey.DISTANCE_MILES));
+	    		@SuppressWarnings("unused") //we need it to raise the exception if it's empty
+				int distance = Integer.parseInt(row.get(FileParserBase.RowKey.DISTANCE_MILES));
 	    		
-	    		String dep = row.get(FileParserBase.RowKey.ORIGIN_IATA_ID);
-	    		String dest = row.get(FileParserBase.RowKey.DEST_IATA_ID);
-	    		
-		    	return new Text(Utils.pathKey(dep, dest));
+		    	return new Text(Utils.pathKey(row));
 		    	
 	    	} catch (Exception e) {
 	    		return null;
@@ -53,7 +51,7 @@ public class UniqueDistJobWrapper extends JobWrapper {
 	    	
 	    	try{
 	    		Integer distance = Integer.parseInt(row.get(FileParserBase.RowKey.DISTANCE_MILES));
-	    		Integer group = distance / 200;
+	    		Integer group = distance / 200 + 1;
 	    		
 	    		val = group.toString();
 	    	}catch(Exception e) {
@@ -75,7 +73,7 @@ public class UniqueDistJobWrapper extends JobWrapper {
 				String[] vis = i.toString().split(",");
 				if(vis[1] != "NA") {
 					ctxt.write(k, new Text("distance," + vis[1]));
-					break;
+					return;
 				}
 			}
 		}

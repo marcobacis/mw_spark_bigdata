@@ -84,7 +84,7 @@ def perc_dep_delay_halved_per_group(spark: sk.sql.SparkSession, data: sk.sql.Dat
             depdelay = float(dist_arrdelay_depdelay[2].strip())
         except:
             return []
-        distgroup = max(1, distance // 200)
+        distgroup = distance // 200 + 1
         delayfrac = (1, 1 if (arrdelay <= (depdelay * 0.5)) else 0)
         return [(distgroup, delayfrac)]
 
@@ -149,6 +149,5 @@ if __name__ == '__main__':
         to_csv(pwcpw, sys.argv[1] + '/pwcpw.csv')
         to_csv(pddhpg, sys.argv[1] + '/pddhpg.csv')
         to_csv(ppa, sys.argv[1] + '/ppa.csv')
-        to_csv(fppm, sys.argv[1] + 'fppm.csv')
-
+        to_csv(fppm, sys.argv[1] + '/fppm.csv')
 
